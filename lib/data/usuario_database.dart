@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
 
 class UsuarioDatabase {
   UsuarioDatabase._();
@@ -18,8 +19,10 @@ class UsuarioDatabase {
   Future<void> init() async {
     if (!kIsWeb &&
         (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
+      ffi.sqfliteFfiInit();
+      databaseFactory = ffi.databaseFactoryFfi;
+    } else {
+      databaseFactory = databaseFactorySqflitePlugin;
     }
     await database;
     await seedDemoUsuarios();
