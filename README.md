@@ -1,306 +1,276 @@
-# Proyecto Flutter - Aplicación Completa
+# Proyecto Flutter - Proyecto1
 
-Una aplicación Flutter que demuestra conceptos avanzados de desarrollo, incluyendo:
-- ✅ Autenticación con bcrypt
-- ✅ Lectura de archivos locales
-- ✅ Consumo de APIs REST (CRUD completo)
-- ✅ Operaciones asincrónicas (FutureBuilder, async/await, Isolate, Timer.periodic)
-- ✅ Notificaciones locales
-- ✅ Navegación entre pantallas
-- ✅ Controles Cupertino personalizados
+Aplicacion Flutter con interfaz estilo Cupertino. El proyecto incluye login,
+menu principal, lectura de archivo TXT, SQLite, consumo de API REST, CRUD,
+tareas asincronas y notificaciones locales en Windows mediante canal nativo.
 
-## Arquitectura de la Aplicación
+## Funcionalidades agregadas
 
-### Estructura de Directorios
+- Login con usuario fijo `admin` y validacion de password con `bcrypt`.
+- Registro de nuevos usuarios guardados en SQLite.
+- Menu principal tipo action sheet desde la pantalla `Inicio`.
+- Lectura simple del archivo `assets/datos.txt`.
+- CRUD de "Meks" con SQLite local.
+- Consumo de API REST con JSONPlaceholder.
+- Crear, editar y eliminar registros usando API + SQLite.
+- Notificaciones al crear, editar o eliminar registros.
+- Notificaciones nativas en Windows usando `MethodChannel`.
+- Pantalla de pruebas de notificaciones.
+- Pantalla de tareas asincronas:
+  - `FutureBuilder`
+  - `async/await`
+  - `Isolate.run`
+  - `Timer.periodic`
+- Diagrama de clases en `docs/uml.md`.
+- Version PlantUML del diagrama en `docs/diagrama_clases.puml`.
 
+## Credenciales de prueba
+
+```text
+Usuario: admin
+Password: admin123
 ```
+
+Tambien se pueden crear nuevos usuarios desde la pantalla de login.
+
+## Menu de la app
+
+La pantalla principal tiene un boton de menu en la esquina superior derecha.
+Desde ese menu se puede abrir:
+
+- Meks
+- Archivo TXT
+- Tareas asincronas
+- Notificaciones
+- Usuarios SQLite
+
+## Estructura principal
+
+```text
 lib/
-├── main.dart                      # Punto de entrada
-├── inicio.dart                    # Pantalla principal (Hub)
-├── terminos.dart                  # Términos y condiciones
-├── lectura_archivo.dart           # Lectura de archivos con FutureBuilder
-├── gestion_posts.dart             # CRUD de posts (API)
-├── tareas_asincronas.dart         # Demostración de 4 formas asincrónicas
-├── pantalla_notificaciones.dart   # Centro de notificaciones
-├── data/
-│   ├── post_model.dart            # Modelo de Post
-│   ├── api_service.dart           # Servicio REST
-│   └── usuario_database.dart      # Base de datos SQLite
-└── services/
-    └── notification_service.dart  # Servicio de notificaciones
+  main.dart
+  inicio.dart
+  gestion_posts.dart
+  lectura_archivo.dart
+  pantalla_notificaciones.dart
+  tareas_asincronas.dart
+  terminos.dart
+  data/
+    api_service.dart
+    mek_database.dart
+    post_model.dart
+    usuario_database.dart
+  services/
+    notification_service.dart
 
 assets/
-└── datos.txt                       # Archivo de datos de ejemplo
+  datos.txt
+
+docs/
+  uml.md
+  diagrama_clases.puml
+  uml_diagrama.svg
 ```
 
-## Diagrama de Clases
+## Pantallas
 
-```mermaid
-classDiagram
-    class Post {
-        -int id
-        -int userId
-        -String title
-        -String body
-        +fromJson(Map) Post
-        +toJson() Map
-    }
+### Login
 
-    class ApiService {
-        -String baseUrl
-        +obtenerPosts() Future~List~Post~~
-        +obtenerPostPorId(int) Future~Post~
-        +crearPost(userId, title, body) Future~Post~
-        +actualizarPost(id, userId, title, body) Future~Post~
-        +eliminarPost(int) Future~bool~
-    }
+Archivo: `lib/main.dart`
 
-    class NotificationService {
-        -FlutterLocalNotificationsPlugin plugin
-        +initialize() Future~void~
-        +mostrarNotificacion(titulo, mensaje) Future~void~
-        +cancelarNotificacion() Future~void~
-    }
+Permite iniciar sesion con el usuario `admin` o con usuarios creados en SQLite.
+Tambien incluye acceso a terminos y condiciones.
 
-    class Inicio {
-        -double tamanioTexto
-        -bool textoGrande
-        -String sexoSeleccionado
-        -int paisSeleccionado
-    }
+### Inicio
 
-    class GestionPosts {
-        -Future~List~Post~~ posts
-        -TextEditingController titleController
-        -TextEditingController bodyController
-        +_cargarPosts() void
-        +_mostrarFormularioCrear() void
-        +_eliminarPost(int) void
-    }
+Archivo: `lib/inicio.dart`
 
-    class TareasAsincronas {
-        -Future~String~ futureData
-        -String asyncAwaitResult
-        -String computeResult
-        -int timerCount
-        +_simularCargaFuture() Future~String~
-        +_ejecutarAsyncAwait() void
-        +_ejecutarCompute() void
-        +_iniciarTimer() void
-    }
+Pantalla principal de la app. Tiene controles como slider, switch, radio
+buttons, picker y el menu principal.
 
-    ApiService --> Post : usa
-    GestionPosts --> Post : maneja
-    GestionPosts --> ApiService : consume
-    TareasAsincronas --> NotificationService : puede usar
+### Meks
+
+Archivo: `lib/gestion_posts.dart`
+
+Permite agregar, editar, listar y eliminar registros. Cada accion se guarda en
+SQLite y tambien intenta sincronizar con la API de JSONPlaceholder.
+
+Cuando se crea, edita o elimina un registro, la app muestra una notificacion.
+
+### Archivo TXT
+
+Archivo: `lib/lectura_archivo.dart`
+
+Lee el archivo:
+
+```text
+assets/datos.txt
 ```
 
-## Diagrama de Flujo de la Aplicación
+La lectura se hace de forma simple con:
 
-```mermaid
-graph TD
-    A[Inicio: main.dart] --> B[Autenticación: Login]
-    B -->|Usuario/Contraseña correcto| C[Pantalla Principal: Inicio]
-    B -->|Error| D[Mostrar Error]
-    D --> B
-
-    C -->|Gestionar Posts| E[Gestión CRUD de Posts]
-    E -->|GET| F[Lista de Posts]
-    E -->|POST| G[Crear Post]
-    E -->|PUT| H[Actualizar Post]
-    E -->|DELETE| I[Eliminar Post]
-
-    C -->|Leer Archivo| J[Lectura de Archivo Local]
-    J -->|FutureBuilder| K[Mostrar Contenido]
-
-    C -->|Tareas Asincrónicas| L[Demostración Async]
-    L --> M[FutureBuilder]
-    L --> N[Async/Await]
-    L --> O[Compute Isolate]
-    L --> P[Timer.periodic]
-
-    C -->|Notificaciones| Q[Centro de Notificaciones]
-    Q -->|Enviar| R[FlutterLocalNotifications]
-
-    C -->|Términos| S[Términos y Condiciones]
-
-    E --> Q : Notificar éxito/error
-    M --> Q : Notificar al completar
-    N --> Q : Notificar resultado
+```dart
+rootBundle.loadString('assets/datos.txt');
 ```
 
-## Servicios Principales
+### Tareas asincronas
 
-### 1. Lectura de Archivo Local (assets/datos.txt)
-- **Pantalla:** `LecturaArchivo`
-- **Técnica:** `FutureBuilder`
-- **Descripción:** Lee un archivo desde assets de forma asincrónica
+Archivo: `lib/tareas_asincronas.dart`
 
-### 2. CRUD con API (JSONPlaceholder)
-- **Pantalla:** `GestionPosts`
-- **Servicio:** `ApiService`
-- **Técnica:** HTTP GET, POST, PUT, DELETE
-- **Base URL:** `https://jsonplaceholder.typicode.com`
+Muestra ejemplos de programacion asincrona en Flutter:
 
-### 3. Operaciones Asincrónicas (4 Formas)
-- **Pantalla:** `TareasAsincronas`
-- **Formas:**
-  1. **FutureBuilder:** Para cargar datos
-  2. **Async/Await:** Para operaciones de usuario
-  3. **Compute/Isolate:** Para tareas pesadas
-  4. **Timer.periodic:** Para actualizaciones continuas
+- Carga con `FutureBuilder`.
+- Ejecucion con `async/await`.
+- Trabajo en segundo plano con `Isolate.run`.
+- Contador con `Timer.periodic`.
 
-### 4. Notificaciones Locales
-- **Servicio:** `NotificationService`
-- **Pantalla:** `PantallaNotificaciones`
-- **Características:**
-  - Inicialización al arrancar la app
-  - Soporte para Android e iOS
-  - Gestión de permisos
-  - Múltiples tipos de notificaciones
+### Notificaciones
 
-## Credenciales de Acceso
+Archivo: `lib/pantalla_notificaciones.dart`
 
-```
-Usuario: admin
-Contraseña: admin123 (se valida con bcrypt)
+Permite probar diferentes notificaciones desde botones.
+
+Servicio:
+
+```text
+lib/services/notification_service.dart
 ```
 
-## Dependencias Principales
+En Windows se usa un canal nativo:
+
+```text
+proyecto1/notificaciones
+```
+
+La implementacion nativa esta en:
+
+```text
+windows/runner/flutter_window.cpp
+```
+
+## Base de datos SQLite
+
+El proyecto usa SQLite con `sqflite_common_ffi`.
+
+Archivos importantes:
+
+- `lib/data/usuario_database.dart`
+- `lib/data/mek_database.dart`
+
+Tablas principales:
+
+- `usuarios`
+- `meks`
+
+## API REST
+
+Archivo:
+
+```text
+lib/data/api_service.dart
+```
+
+API usada:
+
+```text
+https://jsonplaceholder.typicode.com
+```
+
+Metodos incluidos:
+
+- `obtenerPosts`
+- `obtenerPostPorId`
+- `crearPost`
+- `actualizarPost`
+- `eliminarPost`
+
+Nota: JSONPlaceholder simula las operaciones, pero los cambios no quedan
+guardados permanentemente en el servidor.
+
+## Dependencias principales
 
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
-  bcrypt: ^1.1.3              # Encriptación de contraseñas
-  http: ^1.6.0                # Consumo de APIs REST
-  flutter_local_notifications: ^22.0.1  # Notificaciones locales
-  get: ^4.6.6                 # Gestión de estado (disponible para expansión)
+  cupertino_icons: ^1.0.8
+  get: ^4.6.6
+  bcrypt: ^1.1.3
+  path: ^1.9.1
+  sqflite_common_ffi: ^2.4.0+3
+  http: ^1.6.0
+  image_picker: ^1.1.2
+  path_provider: ^2.1.5
 ```
 
-## Características Implementadas
+## Ejecutar el proyecto
 
-### ✅ Autenticación
-- Login con validación de usuario y contraseña
-- Contraseña encriptada con bcrypt
-- Validación en tiempo real
+Instalar dependencias:
 
-### ✅ Base de Datos
-- SQLite integrado (en `data/usuario_database.dart`)
-- Estructura lista para expandir
-
-### ✅ API REST
-- Consumo de JSONPlaceholder
-- Operaciones CRUD completas
-- Manejo de errores y timeouts
-
-### ✅ Interfaz de Usuario
-- Tema oscuro Cupertino
-- Navegación fluida
-- Controles personalizados
-- SafeArea y SingleChildScrollView
-
-### ✅ Asincronía
-- FutureBuilder para UI reactiva
-- Async/await para controlar flujos
-- Isolate para operaciones pesadas
-- Timer para actualizaciones periódicas
-
-### ✅ Notificaciones
-- Sistema de notificaciones locales
-- Múltiples canales configurables
-- Soporte multiplataforma (Android/iOS)
-
-## Cómo Usar
-
-### 1. Clonar y Configurar
 ```bash
-git clone <repo>
-cd proyecto1
 flutter pub get
 ```
 
-### 2. Ejecutar la Aplicación
+Ejecutar:
+
 ```bash
 flutter run
 ```
 
-### 3. Navegar por las Funcionalidades
-1. **Login:** Ingresa `admin` / `admin123`
-2. **Gestionar Posts:** Ver, crear, actualizar, eliminar posts
-3. **Leer Archivo:** Ver contenido de assets/datos.txt
-4. **Tareas Asincrónicas:** Experimentar con 4 formas diferentes
-5. **Notificaciones:** Enviar notificaciones de prueba
-6. **Términos:** Leer términos y condiciones
+Ejecutar en Windows:
 
-## Estructura del Código
-
-### Modelo Post
-```dart
-class Post {
-  final int id;
-  final int userId;
-  final String title;
-  final String body;
-}
+```bash
+flutter run -d windows
 ```
 
-### Servicio API
-```dart
-class ApiService {
-  static const String baseUrl = 'https://jsonplaceholder.typicode.com';
-  // Métodos: GET, POST, PUT, DELETE
-}
+Compilar para Windows:
+
+```bash
+flutter build windows
 ```
 
-### Servicio de Notificaciones
-```dart
-class NotificationService {
-  static Future<void> initialize()
-  static Future<void> mostrarNotificacion()
-  static Future<void> cancelarNotificacion()
-}
+## Diagrama de clases
+
+El diagrama esta en:
+
+```text
+docs/uml.md
 ```
 
-## Pantallas de la Aplicación
+GitHub puede mostrar el diagrama Mermaid directamente al abrir ese archivo.
 
-```
-┌─────────────────────────┐
-│   Login (main.dart)     │
-└────────────┬────────────┘
-             │
-             ├──► Términos
-             │
-             ├──► Inicio (Hub Central)
-             │    ├──► Gestionar Posts (CRUD)
-             │    ├──► Leer Archivo Local
-             │    ├──► Tareas Asincrónicas
-             │    ├──► Centro de Notificaciones
-             │    ├──► SQLite (expandible)
-             │    ├──► Controles Cupertino
-             │    └──► Más...
+Tambien existe una version PlantUML:
+
+```text
+docs/diagrama_clases.puml
 ```
 
-## Próximas Expansiones
+## Subir cambios a GitHub
 
-- [ ] Autenticación con Firebase
-- [ ] Almacenamiento en la nube
-- [ ] Sincronización offline-first
-- [ ] Análisis y reportes
-- [ ] Tests unitarios y de integración
-- [ ] Internacionalización (i18n)
+Desde la carpeta del repositorio:
 
-## Notas Importantes
+```bash
+git status
+git add .
+git commit -m "Actualizar proyecto Flutter"
+git push origin main
+```
 
-- La API JSONPlaceholder es de lectura principalmente (los cambios no persisten)
-- Las notificaciones requieren permisos específicos en Android 13+
-- El archivo de datos está en assets y se carga en tiempo de compilación
+Si GitHub tiene cambios que no estan en tu computadora:
 
-## Licencia
+```bash
+git pull origin main --allow-unrelated-histories
+git push origin main
+```
 
-Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+## Nota sobre iPhone
 
----
+El proyecto se puede subir a GitHub desde Windows, pero para probarlo en un
+iPhone se necesita una Mac con Xcode o un servicio de compilacion iOS en la
+nube. Desde Windows no se puede compilar directamente para iOS.
 
-**Versión:** 0.1.0  
-**Última actualización:** 2026-07-13
+## Version
+
+```text
+0.1.0+1
+```

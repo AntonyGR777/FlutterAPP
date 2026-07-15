@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'data/usuario_database.dart';
 import 'lectura_archivo.dart';
 import 'gestion_posts.dart';
+import 'pantalla_notificaciones.dart';
 import 'tareas_asincronas.dart';
 
 class Inicio extends StatefulWidget {
@@ -27,6 +28,51 @@ class _InicioState extends State<Inicio> {
 
   int paisSeleccionado = 0;
 
+  void _abrirPagina(Widget pagina) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(builder: (context) => pagina),
+    );
+  }
+
+  Future<void> _mostrarMenu() async {
+    final pagina = await showCupertinoModalPopup<Widget>(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Menu principal'),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context, const GestionPosts()),
+            child: const Text('Meks'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context, const LecturaArchivo()),
+            child: const Text('Archivo TXT'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context, const TareasAsincronas()),
+            child: const Text('Tareas asincronas'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context, const PantallaNotificaciones()),
+            child: const Text('Notificaciones'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(context, const SQLiteUsuariosPage()),
+            child: const Text('Usuarios SQLite'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+      ),
+    );
+
+    if (pagina != null && mounted) {
+      _abrirPagina(pagina);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -38,7 +84,16 @@ class _InicioState extends State<Inicio> {
           },
           child: const Icon(Icons.arrow_back, size: 25, color: Colors.blue),
         ),
+        middle: const Text('Inicio'),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: _mostrarMenu,
+          child: const Icon(
+            CupertinoIcons.line_horizontal_3,
+            color: CupertinoColors.activeBlue,
           ),
+        ),
+      ),
       child: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -116,11 +171,7 @@ class _InicioState extends State<Inicio> {
                   width: 260,
                   child: CupertinoButton.filled(
                     onPressed: () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => const GestionPosts(),
-                        ),
-                      );
+                      _abrirPagina(const GestionPosts());
                     },
                     child: const Text(
                       'Meks',
@@ -135,11 +186,7 @@ class _InicioState extends State<Inicio> {
                   child: CupertinoButton(
                     color: CupertinoColors.systemGrey,
                     onPressed: () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => const LecturaArchivo(),
-                        ),
-                      );
+                      _abrirPagina(const LecturaArchivo());
                     },
                     child: const Text(
                       'Txt',
@@ -154,11 +201,7 @@ class _InicioState extends State<Inicio> {
                   child: CupertinoButton(
                     color: CupertinoColors.systemIndigo,
                     onPressed: () {
-                      Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (context) => const TareasAsincronas(),
-                        ),
-                      );
+                      _abrirPagina(const TareasAsincronas());
                     },
                     child: const Text(
                       'Tareas',

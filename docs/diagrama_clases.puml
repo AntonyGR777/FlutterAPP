@@ -1,0 +1,94 @@
+@startuml
+title Diagrama de clases - Proyecto Flutter
+
+class HardcodedApp
+class MiApp
+class Inicio
+class GestionPosts
+class LecturaArchivo
+class TareasAsincronas
+class PantallaNotificaciones
+class SQLiteUsuariosPage
+class TarjetaMundialMexico
+class TerceraPagina
+
+class Mek {
+  +int id
+  +String nombre
+  +String apodo
+  +String? fotoPath
+  +int? apiId
+  +fromMap(Map map)
+}
+
+class Post {
+  +int id
+  +int userId
+  +String title
+  +String body
+  +fromJson(Map json)
+  +toJson()
+}
+
+class MekDatabase {
+  +instance
+  -database
+  +init()
+  +agregarMek()
+  +actualizarMek()
+  +listarMeks()
+  +contarMeks()
+  +eliminarMek(id)
+}
+
+class UsuarioDatabase {
+  +instance
+  -database
+  +init()
+  +seedDemoUsuarios()
+  +guardarUsuario()
+  +listarUsuarios()
+}
+
+class ApiService {
+  +obtenerPosts()
+  +obtenerPostPorId(id)
+  +crearPost()
+  +actualizarPost()
+  +eliminarPost(id)
+}
+
+class NotificationService {
+  +initialize()
+  +mostrarNotificacion()
+  +cancelarNotificacion()
+}
+
+HardcodedApp --|> StatelessWidget
+MiApp --|> StatelessWidget
+Inicio --|> StatefulWidget
+GestionPosts --|> StatefulWidget
+LecturaArchivo --|> StatefulWidget
+TareasAsincronas --|> StatefulWidget
+PantallaNotificaciones --|> StatefulWidget
+SQLiteUsuariosPage --|> StatefulWidget
+TarjetaMundialMexico --|> StatelessWidget
+TerceraPagina --|> StatelessWidget
+
+MiApp --> Inicio
+Inicio --> GestionPosts
+Inicio --> LecturaArchivo
+Inicio --> TareasAsincronas
+Inicio --> TarjetaMundialMexico
+
+GestionPosts --> MekDatabase
+GestionPosts --> ApiService
+GestionPosts --> NotificationService
+GestionPosts --> Mek
+
+ApiService --> Post
+MekDatabase --> Mek
+SQLiteUsuariosPage --> UsuarioDatabase
+PantallaNotificaciones --> NotificationService
+
+@enduml
