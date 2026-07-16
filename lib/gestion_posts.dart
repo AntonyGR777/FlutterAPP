@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'data/api_service.dart';
 import 'data/mek_database.dart';
+import 'services/audit_log_service.dart';
 import 'services/notification_service.dart';
 
 class GestionPosts extends StatefulWidget {
@@ -155,11 +156,25 @@ class _GestionPostsState extends State<GestionPosts> {
           respuestaApi = false;
         }
 
-        await MekDatabase.instance.agregarMek(
+        final mekId = await MekDatabase.instance.agregarMek(
           nombre: nombre,
           apodo: apodo,
           fotoPath: fotoPath,
           apiId: apiId,
+        );
+        await AuditLogService.instance.registrarMovimiento(
+          accion: 'Crear',
+          entidad: 'Mek',
+          resultadoApi: respuestaApi
+              ? 'POST exitoso en JSONPlaceholder'
+              : 'POST fallido; se guardo solo en SQLite',
+          detalles: {
+            'ID SQLite': mekId,
+            'ID API': apiId,
+            'Nombre': nombre,
+            'Apodo': apodo,
+            'Foto': fotoPath,
+          },
         );
 
         if (!mounted) return;
@@ -212,6 +227,23 @@ class _GestionPostsState extends State<GestionPosts> {
           apodo: apodo,
           fotoPath: fotoPath,
           apiId: mek.apiId,
+        );
+        await AuditLogService.instance.registrarMovimiento(
+          accion: 'Editar',
+          entidad: 'Mek',
+          resultadoApi: respuestaApi
+              ? 'PUT exitoso en JSONPlaceholder'
+              : 'PUT fallido; se actualizo solo en SQLite',
+          detalles: {
+            'ID SQLite': mek.id,
+            'ID API': mek.apiId ?? mek.id,
+            'Nombre anterior': mek.nombre,
+            'Apodo anterior': mek.apodo,
+            'Nombre nuevo': nombre,
+            'Apodo nuevo': apodo,
+            'Foto anterior': mek.fotoPath,
+            'Foto nueva': fotoPath,
+          },
         );
 
         if (!mounted) return;
@@ -379,6 +411,20 @@ class _GestionPostsState extends State<GestionPosts> {
     }
 
     await MekDatabase.instance.eliminarMek(mek.id);
+    await AuditLogService.instance.registrarMovimiento(
+      accion: 'Eliminar',
+      entidad: 'Mek',
+      resultadoApi: respuestaApi
+          ? 'DELETE exitoso en JSONPlaceholder'
+          : 'DELETE fallido; se elimino solo en SQLite',
+      detalles: {
+        'ID SQLite': mek.id,
+        'ID API': mek.apiId ?? mek.id,
+        'Nombre eliminado': mek.nombre,
+        'Apodo eliminado': mek.apodo,
+        'Foto': mek.fotoPath,
+      },
+    );
     if (!mounted) return;
     await _cargarMeks();
     setState(() {

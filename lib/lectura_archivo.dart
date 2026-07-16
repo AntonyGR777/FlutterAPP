@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+
+import 'services/audit_log_service.dart';
 
 class LecturaArchivo extends StatefulWidget {
   const LecturaArchivo({super.key});
@@ -9,13 +10,21 @@ class LecturaArchivo extends StatefulWidget {
 }
 
 class _LecturaArchivoState extends State<LecturaArchivo> {
-  String _texto = 'Presiona el boton para leer datos.txt';
+  String _texto = 'Presiona el boton para leer la bitacora de movimientos.';
+  String _ruta = '';
 
-  Future<void> _leerTxt() async {
-    final texto = await rootBundle.loadString('assets/datos.txt');
+  Future<void> _leerBitacora() async {
+    final texto = await AuditLogService.instance.leerBitacora();
+    final ruta = await AuditLogService.instance.filePath;
     setState(() {
       _texto = texto;
+      _ruta = ruta;
     });
+  }
+
+  Future<void> _limpiarBitacora() async {
+    await AuditLogService.instance.limpiarBitacora();
+    await _leerBitacora();
   }
 
   @override
@@ -30,7 +39,7 @@ class _LecturaArchivoState extends State<LecturaArchivo> {
             color: CupertinoColors.activeBlue,
           ),
         ),
-        middle: const Text('Archivo .txt'),
+        middle: const Text('Bitacora .txt'),
       ),
       child: SafeArea(
         child: Padding(
@@ -39,11 +48,27 @@ class _LecturaArchivoState extends State<LecturaArchivo> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CupertinoButton.filled(
-                onPressed: _leerTxt,
-                child: const Text('Leer datos.txt'),
+                onPressed: _leerBitacora,
+                child: const Text('Leer bitacora'),
               ),
               const SizedBox(height: 10),
-              _CajaArchivo(texto: _texto),
+              CupertinoButton(
+                color: CupertinoColors.systemRed,
+                onPressed: _limpiarBitacora,
+                child: const Text('Limpiar bitacora'),
+              ),
+              if (_ruta.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'Archivo: $_ruta',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.systemGrey,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 10),
+              Expanded(child: _CajaArchivo(texto: _texto)),
             ],
           ),
         ),
@@ -59,18 +84,22 @@ class _CajaArchivo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: CupertinoColors.systemGrey),
-        borderRadius: BorderRadius.circular(8),
-        color: CupertinoColors.white.withOpacity(0.07),
-      ),
-      child: Text(
-        texto,
-        style: const TextStyle(
-          fontSize: 14,
-          color: CupertinoColors.white,
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: CupertinoColors.systemGrey),
+          borderRadius: BorderRadius.circular(8),
+          color: CupertinoColors.white.withOpacity(0.07),
+        ),
+        child: Text(
+          texto,
+          style: const TextStyle(
+            fontSize: 14,
+            color: CupertinoColors.white,
+            fontFamily: 'monospace',
+          ),
         ),
       ),
     );

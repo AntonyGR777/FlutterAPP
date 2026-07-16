@@ -4,6 +4,7 @@ import 'data/usuario_database.dart';
 import 'inicio.dart';
 import 'terminos.dart';
 import 'services/notification_service.dart';
+import 'services/session_service.dart';
 //import 'package:flutter_test_app/home.dart';
 
 const _KUsername = 'admin';
@@ -288,6 +289,7 @@ class _MiAppHomeState extends State<_MiAppHome> {
                               await _validarLogin(usuario, contrasena);
 
                           if (loginValido) {
+                            SessionService.iniciarSesion(usuario);
                             setState(() {
                               displayText = 'Login exitoso';
                               validationFailed = false;
