@@ -15,7 +15,7 @@ notificaciones locales y CRUD completo.
 | Materia | Programacion Movil |
 | Proyecto | Aplicacion Flutter con persistencia local, API REST y notificaciones |
 | Version | 0.1.0+1 |
-| Plataforma probada | Windows |
+| Plataforma probada | Windows, Android |
 
 ## Descripcion breve
 
@@ -482,16 +482,9 @@ git pull origin main --allow-unrelated-histories
 git push origin main
 ```
 
-## Nota sobre iPhone
-
-El proyecto se puede subir a GitHub desde Windows, pero para compilarlo y
-probarlo directamente en iPhone se necesita una Mac con Xcode o un servicio de
-compilacion iOS en la nube. Desde Windows no se puede compilar iOS de forma
-directa.
-
 ## Estado del proyecto
 
 Proyecto academico funcional para entrega de Programacion Movil. La plataforma
-validada en esta entrega es Windows. El codigo conserva soporte de estructura
+validada en esta entrega es Windows y Android. El codigo conserva soporte de estructura
 Flutter multiplataforma, pero cualquier plataforma adicional debe probarse antes
 de marcarse como validada.
